@@ -39,7 +39,7 @@ struct InstallCommand: Command {
         let libPath = Path("/usr/local/lib/")
         let linkList = (signature.link?.split(separator: ",") ?? []).compactMap { item in
             if libPath.child(String(item)).isDirectory {
-                return "-L /usr/local/lib/\(item)/ -I /usr/local/lib/\(item)/ -l\(item)"
+                return "-L /usr/local/lib/ -I /usr/local/lib/ -l\(item)"
             }
             return nil
         }.joined(separator: " ")
