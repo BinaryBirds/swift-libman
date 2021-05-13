@@ -36,10 +36,10 @@ struct InstallCommand: Command {
         
         let currentPath = Path.current
         let inputPath = signature.path ?? "./Sources/"
-        let libPath = Path("/usr/local/lib/swift-libman")
+        let libPath = Path("/usr/local/lib/")
         let linkList = (signature.link?.split(separator: ",") ?? []).compactMap { item in
             if libPath.child(String(item)).isDirectory {
-                return "-L /usr/local/lib/swift-libman/\(item)/ -I /usr/local/lib/swift-libman/\(item)/ -l\(item)"
+                return "-L /usr/local/lib/\(item)/ -I /usr/local/lib/\(item)/ -l\(item)"
             }
             return nil
         }.joined(separator: " ")

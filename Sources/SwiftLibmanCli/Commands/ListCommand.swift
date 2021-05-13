@@ -18,12 +18,12 @@ struct ListCommand: Command {
     struct Signature: CommandSignature {}
 
     func run(using context: CommandContext, signature: Signature) throws {
-        let workPath = Path("/usr/local/lib/swift-libman/")
+        let workPath = Path("/usr/local/lib/")
 
         context.console.output("Swift libraries:", style: .info)
         
-        for path in workPath.children().filter(\.isDirectory).filter(\.isVisible) {
-            context.console.output(" · " + path.name, style: .info)
+        for path in workPath.children().filter(\.isFile).filter(\.isVisible).filter({ $0.extension  == "swiftmodule" }) {
+            context.console.output(" · " + path.name.dropLast(12), style: .info)
         }
     }
 }
