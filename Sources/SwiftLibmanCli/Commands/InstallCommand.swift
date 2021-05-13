@@ -10,6 +10,7 @@ import ConsoleKit
 import PathKit
 import ShellKit
 
+
 struct InstallCommand: Command {
     
     static let name = "install"
@@ -26,9 +27,6 @@ struct InstallCommand: Command {
 
         @Option(name: "link", short: "l", help: "Link with the following libraries")
         var link: String?
-        
-//        @Flag(name: "global", short: "g", help: "Template name to use")
-//        var global: Bool
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
@@ -36,10 +34,10 @@ struct InstallCommand: Command {
         
         let currentPath = Path.current
         let inputPath = signature.path ?? "./Sources/"
-        let libPath = Path("/usr/local/lib/")
+        let workPath = Path(libPath)
         let linkList = (signature.link?.split(separator: ",") ?? []).compactMap { item in
-            if libPath.child(String(item)).isDirectory {
-                return "-L /usr/local/lib/ -I /usr/local/lib/ -l\(item)"
+            if workPath.child(libFile(String(item))).isFile {
+                return "-L \(libPath) -I \(libPath) -l\(item)"
             }
             return nil
         }.joined(separator: " ")
@@ -48,35 +46,16 @@ struct InstallCommand: Command {
 
         do {
             loadingBar.start()
-            if !libPath.isDirectory {
-                try libPath.create()
-            }
             let sh = Shell()
             try sh.run("cd \(currentPath.url.path); find \(inputPath) -name '*.swift' | xargs swiftc \(linkList) -emit-module -emit-library -module-name \(name);")
-
-            #if os(macOS)
-                let ext = "dylib"
-            #elseif os(Windows)
-                let ext = "dll"
-            #else
-                let ext = "so"
-            #endif
-
-            let res = [
-                "\(name).swiftdoc",
-                "\(name).swiftmodule",
-                "\(name).swiftsourceinfo",
-                "lib\(name).\(ext)",
-            ]
-
             
-            for f in res {
-                let p = currentPath.child(f)
-                try p.copy(to: libPath.child(f), force: true)
+            for file in libFiles(name) {
+                let path = currentPath.child(file)
+                try path.copy(to: workPath.child(file), force: true)
             }
             loadingBar.succeed()
 
-            context.console.info("Library installed to: \(libPath.location)")
+            context.console.info("Library installed to: \(workPath.location)")
         }
         catch {
             loadingBar.fail()

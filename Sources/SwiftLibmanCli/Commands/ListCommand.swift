@@ -18,7 +18,7 @@ struct ListCommand: Command {
     struct Signature: CommandSignature {}
 
     func run(using context: CommandContext, signature: Signature) throws {
-        let workPath = Path("/usr/local/lib/")
+        let workPath = Path(libPath)
 
         context.console.output("Swift libraries:", style: .info)
         

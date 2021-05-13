@@ -23,33 +23,17 @@ struct RemoveCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         
-        let libPath = Path("/usr/local/lib/")
+        let workPath = Path(libPath)
         let name = signature.name
         
-        #if os(macOS)
-            let ext = "dylib"
-        #elseif os(Windows)
-            let ext = "dll"
-        #else
-            let ext = "so"
-        #endif
-
-        let res = [
-            "\(name).swiftdoc",
-            "\(name).swiftmodule",
-            "\(name).swiftsourceinfo",
-            "lib\(name).\(ext)",
-        ]
-        
-
         let yes = context.console.ask("Remove `\(name)`? (y/n)".consoleText(.info))
         guard yes == "y" else {
             context.console.warning("Skipping removal.")
             return
         }
         do {
-            for f in res {
-                try libPath.child(f).delete()
+            for file in libFiles(name) {
+                try workPath.child(file).delete()
             }
             context.console.success("Library removed.")
         }
