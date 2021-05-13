@@ -69,18 +69,14 @@ struct InstallCommand: Command {
                 "lib\(name).\(ext)",
             ]
 
-            let workPath = libPath.child(name)
-            if !workPath.isDirectory {
-                try workPath.create()
-            }
             
             for f in res {
                 let p = currentPath.child(f)
-                try p.copy(to: workPath.child(f), force: true)
+                try p.copy(to: libPath.child(f), force: true)
             }
             loadingBar.succeed()
 
-            context.console.info("Library installed to: \(workPath.location)")
+            context.console.info("Library installed to: \(libPath.location)")
         }
         catch {
             loadingBar.fail()
